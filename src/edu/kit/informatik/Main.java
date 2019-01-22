@@ -14,7 +14,7 @@ public class Main {
         Controller controller = new Controller();
         String input;
         String command;
-        String argument = "";
+        String argument = null;
 
         do {
 
@@ -46,6 +46,7 @@ public class Main {
                 case "move":
                     break;
                 case "print":
+                    Terminal.printLine(controller.toString());
                     break;
                 case "abort":
                     controller.resetGame();

@@ -39,13 +39,18 @@ public class Controller {
             return "Error, invalid dice roll!";
         }
         this.diceRoll = Integer.valueOf(diceRoll);
-        return "ok";
+        return "OK";
     }
 
     void resetGame() {
         game = null;
     }
 
-
-
+    @Override
+    public String toString() {
+        if (game == null) {
+            return "Error, no game is currently in progress!";
+        }
+        return game.toString();
+    }
 }
