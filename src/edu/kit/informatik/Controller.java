@@ -1,16 +1,13 @@
 package edu.kit.informatik;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class Controller {
 
-    private static final String DICE_ROLL_PATTERN = "[1-6]{1}";
+    private static final String DICE_ROLL_PATTERN = "[1-6]";
 
     private Game game;
     private int diceRoll;
 
-    public Controller() {
+    Controller() {
 
     }
 
@@ -26,6 +23,9 @@ public class Controller {
     String startGame(String settings) {
         if (game == null) {
             game = Game.getInstance(settings);
+            if (game == null) {
+                return "Error, invalid start settings!";
+            }
             return "OK";
         } else {
             return "Error, there already is a game in progress!";
@@ -33,13 +33,11 @@ public class Controller {
     }
 
     String rollTheDice(String diceRoll) {
-        Pattern pattern = Pattern.compile(DICE_ROLL_PATTERN);
-        Matcher matcher = pattern.matcher(diceRoll);
-        if (!matcher.matches()) {
+        if (!diceRoll.matches("[1-6]")) {
             return "Error, invalid dice roll!";
         }
         this.diceRoll = Integer.valueOf(diceRoll);
-        return "OK";
+        return game.getMoves(this.diceRoll);
     }
 
     void resetGame() {

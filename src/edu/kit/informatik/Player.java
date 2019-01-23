@@ -1,7 +1,6 @@
 package edu.kit.informatik;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class Player {
 
@@ -19,12 +18,12 @@ public class Player {
     private int startIndex;
     private ArrayList<Peg> pegs;
     private Peg[] endArea;
-    private String name;
+    private int id;
 
 
-    Player(int startIndex, String[] startPositions, String name) {
+    Player(int startIndex, String[] startPositions, int id) {
 
-        this.name = name;
+        this.id = id;
         pegs = new ArrayList<>();
         this.startIndex = startIndex;
         endArea = new Peg[NUMBER_OF_PEGS];
@@ -35,35 +34,35 @@ public class Player {
             if (startPositions[i].matches("[0-9]|[1-3][0-9]")) {
 
                 int position = Integer.valueOf(startPositions[i]);
-                peg = new Peg(position);
+                peg = new Peg(position, id);
                 pegs.add(peg);
                 pegMover.launchPeg(position, peg);
 
-            } else if (startPositions[i].matches("[S](R|G|B|Y)")) {
+            } else if (startPositions[i].matches("[S][RGBY]")) {
 
-                peg = new Peg(-4);
+                peg = new Peg(-4, id);
                 pegs.add(peg);
 
             } else {
 
                 switch (startPositions[i].charAt(0)) {
                     case 'A':
-                        peg = new Peg(-1);
+                        peg = new Peg(-1, id);
                         pegs.add(peg);
                         endArea[0] = peg;
                         break;
                     case 'B':
-                        peg = new Peg(-2);
+                        peg = new Peg(-2, id);
                         pegs.add(peg);
                         endArea[1] = peg;
                         break;
                     case 'C':
-                        peg = new Peg(-3);
+                        peg = new Peg(-3, id);
                         pegs.add(peg);
                         endArea[2] = peg;
                         break;
                     case 'D':
-                        peg = new Peg(-4);
+                        peg = new Peg(-4, id);
                         pegs.add(peg);
                         endArea[3] = peg;
                         break;
@@ -74,45 +73,45 @@ public class Player {
         }
     }
 
-    Player(int startIndex, String name) {
+    Player(int startIndex, int id) {
         this.startIndex = startIndex;
-        this.name = name;
+        this.id = id;
         pegs = new ArrayList<>();
         endArea = new Peg[NUMBER_OF_PEGS];
         for (int i = 0; i < NUMBER_OF_PEGS; i++) {
-            pegs.add(new Peg(-4));
+            pegs.add(new Peg(-4, id));
         }
     }
 
-    public static String getRedStartSpots() {
+    static String getRedStartSpots() {
         return RED_START_SPOTS;
     }
 
-    public static String getGreenStartSpots() {
+    static String getGreenStartSpots() {
         return GREEN_START_SPOTS;
     }
 
-    public static String getBlueStartSpots() {
+    static String getBlueStartSpots() {
         return BLUE_START_SPOTS;
     }
 
-    public static String getYellowStartSpots() {
+    static String getYellowStartSpots() {
         return YELLOW_START_SPOTS;
     }
 
-    public static int getNumberOfPegs() {
+    static int getNumberOfPegs() {
         return NUMBER_OF_PEGS;
     }
 
-    public static void setPegMover(PegMoverInterface pegMover_) {
+    static void setPegMover(PegMoverInterface pegMover_) {
         pegMover = pegMover_;
     }
 
     public String toString() {
 
         String text = "";
-        Positions position[] = Positions.values();
-        char playerChar = name.toUpperCase().charAt(0);
+        Positions[] position = Positions.values();
+        char playerChar = Game.getPlayerName(id).toUpperCase().charAt(0);
 
         for (Peg peg : pegs) {
 
@@ -127,4 +126,24 @@ public class Player {
         return text.substring(0, text.length() - 1);
     }
 
+    Peg hasLaunchReady() {
+        int i = 0;
+        for (Peg peg : pegs) {
+            Terminal.printLine("pass: " + ++i);
+            if (peg.isHome()) {
+                Terminal.printLine("evde var");
+                return peg;
+            }
+        }
+        Terminal.printLine("evde yok");
+        return null;
+    }
+
+    int getStartIndex() {
+        return startIndex;
+    }
+
+    Peg checkEndArea(int index) {
+        return endArea[index];
+    }
 }

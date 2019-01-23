@@ -8,8 +8,10 @@ public class Peg {
     private int position;
     private boolean isHome = false;
     private boolean hasArrived = false;
+    private int owner;
 
-    public Peg(int position) {
+    Peg(int position, int owner) {
+        this.owner = owner;
         if (position >= 0) {
             this.position = position;
         } else if (position == -4) {
@@ -21,7 +23,15 @@ public class Peg {
         }
     }
 
-    public boolean isHome() {
+    public int getOwner() {
+        return owner;
+    }
+
+    public void setOwner(int owner) {
+        this.owner = owner;
+    }
+
+    boolean isHome() {
         return isHome;
     }
 
@@ -29,11 +39,11 @@ public class Peg {
         isHome = home;
     }
 
-    public int getPosition() {
+    int getPosition() {
         return position;
     }
 
-    public boolean hasArrived() {
+    boolean hasArrived() {
         return hasArrived;
     }
 

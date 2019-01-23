@@ -38,7 +38,7 @@ public class Main {
                     break;
                 case "roll":
                     if (argument == null) {
-                        Terminal.printError("the result of the dice roll must be given!");
+                        Terminal.printError("Error, the result of the dice roll must be given!");
                     } else {
                         Terminal.printLine(controller.rollTheDice(argument));
                     }
@@ -46,15 +46,21 @@ public class Main {
                 case "move":
                     break;
                 case "print":
-                    Terminal.printLine(controller.toString());
-                    break;
+                    if (argument == null) {
+                        Terminal.printLine(controller.toString());
+                        break;
+                    }
                 case "abort":
-                    controller.resetGame();
-                    break;
+                    if (argument == null) {
+                        controller.resetGame();
+                        break;
+                    }
                 case "quit":
-                    break;
+                    if (argument == null) {
+                        break;
+                    }
                 default:
-                    Terminal.printError("command not recognized!");
+                    Terminal.printError("Error, command not recognized!");
                     break;
             }
             argument = null;
