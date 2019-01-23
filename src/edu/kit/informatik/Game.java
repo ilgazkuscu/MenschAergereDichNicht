@@ -6,7 +6,9 @@ import java.util.regex.Pattern;
 
 
 /**
- * Implements the classic Mensch Ärgere Dich Nicht game.
+ * Implements the classic Mensch Ärgere Dich Nicht game. The core of the game where most program logic comes together.
+ * @author Emre Senliyim
+ * @version 1.0
  */
 public class Game {
 
@@ -163,20 +165,12 @@ public class Game {
     private void setPlayerPegMover() {
         Player.setPegMover(new PegMoverInterface() {
             @Override
-            public String movePeg(int start, int target) {
-                gameBoard[target] = gameBoard[start];
-                gameBoard[start] = null;
-                return null;            }
-
-            public boolean launchPeg(int position, Peg peg) {
+            public void launchPeg(int position, Peg peg) {
                 if (gameBoard[position] != null) {
-                    return false;
                 } else {
                     gameBoard[position] = peg;
-                    return true;
                 }
             }
-
         });
     }
 

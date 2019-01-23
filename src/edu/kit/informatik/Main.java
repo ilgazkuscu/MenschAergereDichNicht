@@ -6,7 +6,8 @@ public class Main {
      * Main method. Handles the user interactions. Gets the user input from the Terminal class, extracts the command
      * from it, if the user has input a valid one. The only program logic that happens here is checking whether the
      * command is valid, and whether the user has actually given *any* argument at all. Literally anything passes as an
-     * argument as long as it exists. The actual verification of the argument happens in its relevant class method.
+     * argument as long as it exists after a whitespace. The actual verification of the argument happens in its
+     * relevant class method.
      * @param args default main args, not meant to do anything.
      */
     public static void main(String[] args) {
@@ -38,12 +39,15 @@ public class Main {
                     break;
                 case "roll":
                     if (argument == null) {
-                        Terminal.printError("Error, the result of the dice roll must be given!");
+                        Terminal.printError("the result of the dice roll must be given!");
                     } else {
                         Terminal.printLine(controller.rollTheDice(argument));
                     }
                     break;
                 case "move":
+                    if (argument == null) {
+                        Terminal.printError("I'm sorry Dave, I'm afraid I can't do that.");
+                    }
                     break;
                 case "print":
                     if (argument == null) {
@@ -60,7 +64,7 @@ public class Main {
                         break;
                     }
                 default:
-                    Terminal.printError("Error, command not recognized!");
+                    Terminal.printError("command not recognized!");
                     break;
             }
             argument = null;

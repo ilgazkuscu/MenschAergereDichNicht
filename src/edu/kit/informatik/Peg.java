@@ -27,10 +27,6 @@ public class Peg {
         return owner;
     }
 
-    public void setOwner(int owner) {
-        this.owner = owner;
-    }
-
     boolean isHome() {
         return isHome;
     }
