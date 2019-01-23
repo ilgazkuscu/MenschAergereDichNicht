@@ -13,7 +13,7 @@ public class Controller {
     /**
      * Empty controller because the game does not need to start until the controller is instructed to do so.
      */
-    Controller() {
+    public Controller() {
 
     }
 
@@ -22,7 +22,7 @@ public class Controller {
      * starts with all their pieces at home.
      * @return "OK" if the game has been started, error message if there already is one in progress
      */
-    String startGame() {
+    public String startGame() {
         if (game == null) {
             game = Game.getInstance();
             return "OK";
@@ -36,7 +36,7 @@ public class Controller {
      * @param settings The custom settings as specified by the user.
      * @return "OK" if a new game has been started, relevant error messages in case something's wrong
      */
-    String startGame(String settings) {
+    public String startGame(String settings) {
         if (game == null) {
             game = Game.getInstance(settings);
             if (game == null) {
@@ -55,7 +55,7 @@ public class Controller {
      * @param diceRoll what the user says the dice roll yielded
      * @return the list of all possible legal moves, followed by an indicator that shows who's up
      */
-    String rollTheDice(String diceRoll) {
+    public String rollTheDice(String diceRoll) {
         if (!diceRoll.matches("[1-6]")) {
             return "Error, invalid dice roll!";
         }
@@ -65,7 +65,7 @@ public class Controller {
     /**
      * Sets the game instance to null, which effectively ends the game and removes all data related to it.
      */
-    void resetGame() {
+    public void resetGame() {
         game = null;
     }
 

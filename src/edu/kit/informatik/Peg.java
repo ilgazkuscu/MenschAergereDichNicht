@@ -23,7 +23,7 @@ public class Peg {
         }
     }
 
-    public int getOwner() {
+    int getOwner() {
         return owner;
     }
 

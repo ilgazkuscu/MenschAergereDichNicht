@@ -22,7 +22,7 @@ public class Main {
             input = Terminal.readLine(); // Takes the terminal input from the Terminal class.
 
             if (input.contains(" ")) { //If there's a space character in the input
-                String[] splitInput = input.split(" ", 2); // Split the input into two, from the space char
+                String[] splitInput = input.split("\\s", 2); // Split the input into two, from the space char
                 command = splitInput[0]; // Put the part that comes before the space into the command string
                 argument = splitInput[1]; // Cast the second part as an int, and make it the argument
             } else {
