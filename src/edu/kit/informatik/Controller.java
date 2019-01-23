@@ -76,4 +76,8 @@ public class Controller {
         }
         return game.toString();
     }
+
+    public String timeToMotor(String choice) {
+        return game.executeTheMove(choice);
+    }
 }

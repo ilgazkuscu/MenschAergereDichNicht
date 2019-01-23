@@ -47,6 +47,8 @@ public class Main {
                 case "move":
                     if (argument == null) {
                         Terminal.printError("I'm sorry Dave, I'm afraid I can't do that.");
+                    } else {
+                        Terminal.printLine(controller.timeToMotor(argument));
                     }
                     break;
                 case "print":

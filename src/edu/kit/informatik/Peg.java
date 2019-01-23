@@ -16,10 +16,10 @@ public class Peg {
             this.position = position;
         } else if (position == -4) {
             isHome = true;
-            this.position = position * -1;
+            this.position = position;
         } else {
             hasArrived = true;
-            this.position = position * -1;
+            this.position = position;
         }
     }
 

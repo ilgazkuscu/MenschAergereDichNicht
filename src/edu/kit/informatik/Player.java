@@ -129,9 +129,7 @@ public class Player {
     Peg hasLaunchReady() {
         int i = 0;
         for (Peg peg : pegs) {
-            Terminal.printLine("pass: " + ++i);
             if (peg.isHome()) {
-                Terminal.printLine("evde var");
                 return peg;
             }
         }
@@ -143,7 +141,25 @@ public class Player {
         return startIndex;
     }
 
-    Peg checkEndArea(int index) {
-        return endArea[index];
+    Peg[] getEndArea() {
+        return endArea;
+    }
+
+    void launchAPeg() {
+        pegMover.launchPeg(startIndex, hasLaunchReady());
+    }
+
+    void moveInsideTheEndArea(int position, int target) {
+        endArea[target] = endArea[position];
+        endArea[position] = null;
+        endArea[target].setPosition(target + 1);
+    }
+
+    boolean hasWon() {
+        boolean victory = true;
+        for (int i = 0; i < pegs.size() && victory; i++) {
+            victory = pegs.get(i).hasArrived();
+        }
+        return victory;
     }
 }
