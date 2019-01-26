@@ -250,7 +250,7 @@ public final class Game {
                 possibleMoves = moves;
                 return moves.concat(PLAYER_NAMES[turnCounter]);
             } else if (gameBoard[player.getStartIndex()].getOwner() == turnCounter) {
-
+                //TODO burda işte halledicez bi şekilde rekursiv mi olcak ne olcaks
             }
         }
 

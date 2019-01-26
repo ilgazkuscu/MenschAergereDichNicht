@@ -139,14 +139,6 @@ public class Player {
     }
 
     /**
-     * Returns the number of pegs that the player can have in total, which is normally 4
-     * @return the number of pegs that the player can have in total
-     */
-    static int getNumberOfPegs() {
-        return NUMBER_OF_PEGS;
-    }
-
-    /**
      * Sets the PegMoverInterface instance that provides communication between this class and another class.
      * @param newPegMover the interface instance that was passed from another class
      */
@@ -234,7 +226,7 @@ public class Player {
      */
     void aNewPegHasArrived(int position, Peg newcomer) {
         endArea[position] = newcomer;
-        newcomer.setHasArrived(true);
+        newcomer.setHasArrived();
         newcomer.setPosition(position + 1);
     }
 

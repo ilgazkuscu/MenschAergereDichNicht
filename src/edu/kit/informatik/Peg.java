@@ -5,8 +5,6 @@ package edu.kit.informatik;
  */
 public class Peg implements Comparable<Peg> {
 
-    private static final int NUMBER_OF_PEGS_PER_PLAYER = 4;
-
     private int position;
     private boolean isHome = false;
     private boolean hasArrived = false;
@@ -76,16 +74,15 @@ public class Peg implements Comparable<Peg> {
      * Sets the peg's new position
      * @param position the new position
      */
-    public void setPosition(int position) {
+    void setPosition(int position) {
         this.position = position;
     }
 
     /**
-     * Sets the hasArrived variable
-     * @param hasArrived true if the peg has made it into the end area, false if it hasn't
+     * Flips the hasArrived variable to true, which means the peg has entered the end area
      */
-    public void setHasArrived(boolean hasArrived) {
-        this.hasArrived = hasArrived;
+    void setHasArrived() {
+        hasArrived = true;
     }
 
     @Override

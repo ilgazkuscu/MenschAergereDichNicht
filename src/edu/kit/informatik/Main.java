@@ -66,7 +66,7 @@ public class Main {
                         break;
                     }
                 case "test":
-                    Terminal.printLine(controller.startGame("SR,SR,38,AR;0,8,22,33;SG,18,23,DG;SY,28,CY,DY"));
+                    Terminal.printLine(controller.startGame("36,AR,CR,DR;SB,10,16,22;SG,13,BG,DG;SY,0,20,BY"));
                     break;
                 default:
                     Terminal.printError("command not recognized!");
