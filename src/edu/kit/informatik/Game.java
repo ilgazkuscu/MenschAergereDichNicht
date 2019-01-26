@@ -264,7 +264,6 @@ public final class Game {
                 } else if (gameBoard[target] == null || gameBoard[target].getOwner() != turnCounter) {
                     moves = moves.concat(i + "-" + target + "\n");
                 }
-
             }
         }
 
