@@ -26,6 +26,10 @@ public class Controller {
         if (game == null) {
             game = Game.getInstance();
             return "OK";
+        } else if (game.hasEnded()) {
+            Game.resetGame();
+            game = Game.getInstance();
+            return "OK";
         } else {
             return "Error, there already is a game in progress!";
         }
@@ -43,6 +47,13 @@ public class Controller {
                 return "Error, invalid start settings!";
             }
             return "OK";
+        } else if (game.hasEnded()) {
+            Game.resetGame();
+            game = Game.getInstance(settings);
+            if (game == null) {
+                return "Error, invalid start settings!";
+            }
+            return "OK";
         } else {
             return "Error, there already is a game in progress!";
         }
@@ -53,31 +64,51 @@ public class Controller {
      * The method then calls another method that calculates and lists all the possible moves that can be made following
      * that dice roll.
      * @param diceRoll what the user says the dice roll yielded
-     * @return the list of all possible legal moves, followed by an indicator that shows who's up
+     * @return If there is a game running AND the user has given a valid dice roll, returns the list of all possible
+     * legal moves followed by an indicator that shows who's up. Returns an error message otherwise
      */
     public String rollTheDice(String diceRoll) {
-        if (!diceRoll.matches("[1-6]")) {
+        if (game == null) {
+            return "Error, there is no game in progress!";
+        } else if (!diceRoll.matches("[1-6]")) {
             return "Error, invalid dice roll!";
+        } else if (game.hasEnded()) {
+            return "Error, the game has ended!";
         }
         return game.getMoves(Integer.valueOf(diceRoll));
     }
 
     /**
-     * Sets the game instance to null, which effectively ends the game and removes all data related to it.
+     * Tells the game to reset itself.
      */
     public void resetGame() {
+        Game.resetGame();
         game = null;
     }
 
     @Override
     public String toString() {
         if (game == null) {
-            return "Error, no game is currently in progress!";
+            return "Error, there is no game in progress!";
         }
         return game.toString();
     }
 
+    /**
+     * Tells the game to execute a move that the user chose, if there is an unfinished game in progress
+     * @param choice user's move choice
+     * @return whatever the executeTheMove returns. Could be an error message or a confirmation.
+     */
     public String timeToMotor(String choice) {
+        if (game == null) {
+            return "Error, there is no game in progress!";
+        } else if (game.hasEnded()) {
+            return "Error, the game has ended!";
+        }
         return game.executeTheMove(choice);
     }
+
+    /*TODO
+    eğer peg çıkamıyosa sondakini iteleme
+     */
 }

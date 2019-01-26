@@ -1,8 +1,8 @@
 package edu.kit.informatik;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -10,17 +10,49 @@ import java.util.regex.Pattern;
  * @author Emre Senliyim
  * @version 1.0
  */
-public class Game {
+public final class Game {
 
     private static final String[] PLAYER_NAMES = {"red", "blue", "green", "yellow"};
     private static final int PATH_LENGTH = 40;
-
-    private static String possibleMoves;
     private static Game gameInstance;
-    private static HashMap<String, Player> players;
-    private static Peg[] gameBoard;
-    private static int turnCounter;
-    private static int roll;
+
+    private String possibleMoves;
+    private HashMap<String, Player> players;
+    private Peg[] gameBoard;
+    private int turnCounter;
+    private int roll;
+    private boolean hasEnded;
+
+    /**
+     * Empty constructor for the class.
+     * First sets the interface variable for the player class
+     * Then initializes the game board
+     * Then starts the turn counter
+     * Then creates all the players
+     */
+    private Game() {
+        setPlayerPegMover();
+        gameBoard = new Peg[PATH_LENGTH];
+        turnCounter = 0;
+        createPlayers();
+        hasEnded = false;
+    }
+
+    /**
+     * Constructor overload. Takes initial game state as a parameter
+     * First sets the interface variable for the player class
+     * Then initializes the game board
+     * Then starts the turn counter
+     * Then creates all the players
+     * @param startPositions a 2D array that contains the starting positions of all individual players
+     */
+    private Game(String[][] startPositions) {
+        setPlayerPegMover();
+        gameBoard = new Peg[PATH_LENGTH];
+        turnCounter = 0;
+        createPlayers(startPositions);
+        hasEnded = false;
+    }
 
     /**
      * The Game class is a singleton since per design only one instance of a running game is allowed to exist at any
@@ -53,34 +85,6 @@ public class Game {
         return gameInstance;
     }
 
-    /**
-     * Empty constructor for the class.
-     * First sets the interface variable for the player class
-     * Then initializes the game board
-     * Then starts the turn counter
-     * Then creates all the players
-     */
-    private Game() {
-        setPlayerPegMover();
-        gameBoard = new Peg[PATH_LENGTH];
-        turnCounter = 0;
-        createPlayers();
-    }
-
-    /**
-     * Constructor overload. Takes initial game state as a parameter
-     * First sets the interface variable for the player class
-     * Then initializes the game board
-     * Then starts the turn counter
-     * Then creates all the players
-     * @param startPositions a 2D array that contains the starting positions of all individual players
-     */
-    private Game(String[][] startPositions) {
-        setPlayerPegMover();
-        gameBoard = new Peg[PATH_LENGTH];
-        turnCounter = 0;
-        createPlayers(startPositions);
-    }
 
     /**
      * Creates 4 players with all their pieces at home.
@@ -118,41 +122,56 @@ public class Game {
 
         String settingsPattern = Player.getRedStartSpots() + "," + Player.getRedStartSpots() + ","
                 + Player.getRedStartSpots() + "," + Player.getRedStartSpots() + ";" + Player.getBlueStartSpots()
-                + "," + Player.getBlueStartSpots() + "," + Player.getBlueStartSpots() + "," +
-                Player.getBlueStartSpots() + ";" + Player.getGreenStartSpots() + "," + Player.getGreenStartSpots()
-                + "," + Player.getGreenStartSpots() + "," + Player.getGreenStartSpots() + ";" +
-                Player.getYellowStartSpots() + "," + Player.getYellowStartSpots() + "," + Player.getYellowStartSpots()
+                + "," + Player.getBlueStartSpots() + "," + Player.getBlueStartSpots() + ","
+                + Player.getBlueStartSpots() + ";" + Player.getGreenStartSpots() + "," + Player.getGreenStartSpots()
+                + "," + Player.getGreenStartSpots() + "," + Player.getGreenStartSpots() + ";"
+                + Player.getYellowStartSpots() + "," + Player.getYellowStartSpots() + "," + Player.getYellowStartSpots()
                 + "," + Player.getYellowStartSpots();
 
+        if (!settings.matches(settingsPattern)) {
+            return null;
+        }
 
-        Pattern pattern = Pattern.compile(settingsPattern);
-        Matcher matcher = pattern.matcher(settings);
-        String[][] startPositions;
+        String[] colorPositions = settings.replaceAll("[S][RGBY]", "").split(";", 4);
+        String[][] startPositions = new String[PLAYER_NAMES.length][colorPositions.length];
+        Set<String> noDupesPls = new HashSet<>();
 
-        if (matcher.find() && matcher.groupCount() == PLAYER_NAMES.length * Player.getNumberOfPegs()) {
-            startPositions = new String[PLAYER_NAMES.length][Player.getNumberOfPegs()];
-            for (int i = 0; i < PLAYER_NAMES.length; i++) {
-                for (int j = 0; j < Player.getNumberOfPegs(); j++) {
-                    startPositions[j][i] = matcher.group((i + 1) + (j * PLAYER_NAMES.length));
+        int startCounter = 0;
+        for (int i = 0; i < startPositions.length; i++) {
+            char playerChar = PLAYER_NAMES[i].toUpperCase().charAt(0);
+            int index = 0;
+            String pos;
+            String moveCheck = "";
+
+            for (int j = 0; j < startPositions[0].length - 1; j++) {
+                pos = colorPositions[i].substring(index, colorPositions[i].indexOf(",", index));
+                if (pos.equals("")) {
+                    pos = "S" + playerChar;
+                    startCounter++;
+                } else {
+                    noDupesPls.add(pos);
+                    moveCheck = moveCheck.concat(pos);
                 }
+                startPositions[i][j] = pos;
+
+                index = colorPositions[i].indexOf(",", index) + 1;
             }
-
-            for (int i = 0; i < startPositions.length; i++) {
-                int endFlag = 0;
-                String previous = "";
-                for (String pos : startPositions[i]) {
-                    if (pos.charAt(0) == 'A' || pos.charAt(0) == 'B' || pos.charAt(0) == 'C' || pos.charAt(0) == 'D') {
-                        endFlag++;
-                    }
-                    if (pos.charAt(0) != 'S' && pos.equals(previous)) {
-                        return null;
-                    }
-                    previous = pos;
-                }
-                if (endFlag == 4) {
-                    return null;
-                }
+            pos = colorPositions[i].substring(colorPositions[i].lastIndexOf(",") + 1);
+            if (pos.equals("")) {
+                pos = "S" + playerChar;
+                startCounter++;
+            } else {
+                noDupesPls.add(pos);
+                moveCheck = moveCheck.concat(pos);
             }
+            startPositions[i][3] = pos;
+
+            if (moveCheck.matches("([ABCD]" + playerChar + "){4}")) {
+                return null;
+            }
+        }
+
+        if (noDupesPls.size() + startCounter == 16) {
             return startPositions;
         } else {
             return null;
@@ -167,15 +186,13 @@ public class Game {
         Player.setPegMover(new PegMoverInterface() {
             @Override
             public void launchPeg(int position, Peg peg) {
-                if (gameBoard[position] != null) {
+                if (gameBoard[position] != null && gameBoard[position].getOwner() != peg.getOwner()) {
                     gameBoard[position].setHome(true);
                     gameBoard[position].setPosition(4);
-                    peg.setHome(false);
-                    peg.setPosition(position);
-                    gameBoard[position] = peg;
-                } else {
-                    gameBoard[position] = peg;
                 }
+                peg.setHome(false);
+                peg.setPosition(position);
+                gameBoard[position] = peg;
             }
         });
     }
@@ -185,8 +202,8 @@ public class Game {
 
         String text = "";
 
-        for (String name : players.keySet()) {
-            text = text.concat(players.get(name).toString() + "\n");
+        for (String playerName : PLAYER_NAMES) {
+            text = text.concat(players.get(playerName).toString() + "\n");
         }
 
         return text.concat(PLAYER_NAMES[turnCounter]);
@@ -196,9 +213,10 @@ public class Game {
      * Runs after each turn to reevaluate the gameBoard and to determine if anyone has won.
      * @return nothing if the game hasn't ended, " winner" if it has.
      */
-    private static String checkGameState() {
+    private String checkGameState() {
         for (int i = 0; i < players.size(); i++) {
             if (players.get(PLAYER_NAMES[i]).hasWon()) {
+                hasEnded = true;
                 return PLAYER_NAMES[turnCounter] + " winner";
             }
         }
@@ -217,42 +235,45 @@ public class Game {
      */
     String getMoves(int roll) {
 
-        String playerName;
+        String playerName = String.valueOf(PLAYER_NAMES[turnCounter].toUpperCase().charAt(0));
         String[] endLetters = {"A", "B", "C", "D"};
         String moves = "";
-        playerName = PLAYER_NAMES[turnCounter];
-        Player player = players.get(playerName);
-        int endSpot = (player.getStartIndex() + PATH_LENGTH - 1) % PATH_LENGTH;
+        Player player = players.get(PLAYER_NAMES[turnCounter]);
+        int endSpot = player.getEndIndex();
         Peg[] endArea = player.getEndArea();
 
-        if (roll == 6 && player.hasLaunchReady() != null &&
-                (gameBoard[player.getStartIndex()] == null ||
-                        gameBoard[player.getStartIndex()].getOwner() != turnCounter)) {
-            moves = moves.concat("S" + playerName.toUpperCase().charAt(0) + "-" + player.getStartIndex() + "\n");
+        if (roll == 6 && player.hasLaunchReady() != null) {
+            if (gameBoard[player.getStartIndex()] == null
+                    || gameBoard[player.getStartIndex()].getOwner() != turnCounter) {
+                moves = moves.concat("S" + playerName + "-" + player.getStartIndex() + "\n");
+                this.roll = roll;
+                possibleMoves = moves;
+                return moves.concat(PLAYER_NAMES[turnCounter]);
+            } else if (gameBoard[player.getStartIndex()].getOwner() == turnCounter) {
+
+            }
         }
 
         for (int i = 0; i < PATH_LENGTH; i++) {
-            int target = (i + roll) % PATH_LENGTH;
             if (gameBoard[i] != null && gameBoard[i].getOwner() == turnCounter) {
-                // is in range of the end area
-                if (i > target && target > endSpot && endArea[endSpot - target - 1] == null) {
-                    moves = moves.concat(i + "-" + endLetters[roll - (endSpot - target) + 1] +
-                            playerName.toUpperCase().charAt(0) + "\n");
-                    break;
-                }
-                // different owner or an empty cell, AND not in range of the end area
-                if (gameBoard[target] == null || gameBoard[target].getOwner() != turnCounter) {
+                int target = (i + roll) % PATH_LENGTH;
+                if ((target < i ^ ((endSpot - target) < 0 && endSpot > i))) {
+                    if ((roll - (endSpot - i) - 1) < endArea.length && endArea[roll - (endSpot - i) - 1] == null) {
+                        moves = moves.concat(i + "-" + endLetters[roll - (endSpot - i) - 1] + playerName + "\n");
+                    }
+                } else if (gameBoard[target] == null || gameBoard[target].getOwner() != turnCounter) {
                     moves = moves.concat(i + "-" + target + "\n");
                 }
+
             }
         }
 
         if (roll < endArea.length) {
-            for (int i = 0; i < endArea.length && endArea[i] != null; i++) {
-                if ((i + roll) < endArea.length && endArea[i + roll] == null) {
-                    String ot = endLetters[i] + playerName.toUpperCase().charAt(0);
-                    moves = moves.concat(ot + "-" +
-                            endLetters[i + roll] + playerName.toUpperCase().charAt(0) + "\n");
+            for (int i = 0; i < endArea.length; i++) {
+                if ((i + roll) < endArea.length && endArea[i] != null
+                        && endArea[i + roll] == null) {
+                    moves = moves.concat(endLetters[i] + playerName + "-"
+                            + endLetters[i + roll] + playerName + "\n");
                 }
             }
         }
@@ -267,32 +288,76 @@ public class Game {
         return moves.concat(PLAYER_NAMES[turnCounter]);
     }
 
+    /**
+     * returns the player's name
+     * @param index the id that will be used as a key to get the name
+     * @return the name as a string
+     */
     static String getPlayerName(int index) {
         return PLAYER_NAMES[index];
     }
 
-    static String executeTheMove(String choice) {
+    /**
+     * Verifies the move that the user has chosen to make, and executes it if possible.
+     * @param choice A String in the form of "XX YY" where XX is the position of the peg to be moved, and YY is where
+     *               the peg is supposed to be moved to.
+     * @return error message if the choice is invalid, the result of the checkGameState method otherwise
+     */
+    String executeTheMove(String choice) {
         if (!choice.matches("([SABC][RGBY]|\\w{1,2})\\s([ABCD][RGBY]|\\w{1,2})")) {
-            Terminal.printLine("bok");
-                return "Error, invalid move choice!";
+            return "Error, invalid move choice!";
+        } else if (possibleMoves == null) {
+            return "Error, must roll the dice first!";
         }
         String[] posAndTarget = choice.split("\\s", 2);
-        int indexPos = possibleMoves.indexOf(posAndTarget[0]);
-        int indexTarget = possibleMoves.indexOf(posAndTarget[1]);
-        if (indexPos != -1 && indexTarget != -1 && (indexTarget - indexPos) < 4 && (indexTarget - indexPos) > 1) {
-            //önce peg launch
+        /*
+        only attempt to execute the move if the user has picked a valid peg to move and a valid spot to move the peg to.
+        To make sure of that, the starting position and the target position of the peg are joined together with a "-"
+        and the resulting string is compared against the list of possible moves. If it exist there, the move is executed
+         */
+        Player player = players.get(PLAYER_NAMES[turnCounter]);
+        int order = possibleMoves.indexOf(posAndTarget[0] + "-" + posAndTarget[1]);
+        if (order != -1) {
+            // First it is checked if the user is launching a new peg
             if (posAndTarget[0].charAt(0) == 'S') {
-                players.get(PLAYER_NAMES[turnCounter]).launchAPeg();
+                player.launchAPeg();
+                turnCounter = (turnCounter + 1) % PLAYER_NAMES.length;
             } else if (posAndTarget[0].matches("[ABC]" + PLAYER_NAMES[turnCounter].toUpperCase().charAt(0))) {
+                // then it is checked if the player is moving a peg within the end area
                 switch (posAndTarget[0].charAt(0)) {
                     case 'A':
-                        players.get(PLAYER_NAMES[turnCounter]).moveInsideTheEndArea(0, roll);
+                        player.moveInsideTheEndArea(0, roll);
                         break;
                     case 'B':
-                        players.get(PLAYER_NAMES[turnCounter]).moveInsideTheEndArea(1, 1 + roll);
+                        player.moveInsideTheEndArea(1, 1 + roll);
                         break;
                     case 'C':
-                        players.get(PLAYER_NAMES[turnCounter]).moveInsideTheEndArea(2, 2 + roll);
+                        player.moveInsideTheEndArea(2, 2 + roll);
+                        break;
+                    default:
+                        break;
+                }
+            } else if (posAndTarget[0].matches("\\d{1,2}")
+                    && posAndTarget[1].matches("[ABCD]" + PLAYER_NAMES[turnCounter].toUpperCase().charAt(0))) {
+                int pos = Integer.valueOf(posAndTarget[0]);
+                switch (posAndTarget[1].charAt(0)) {
+                    case 'A':
+                        player.aNewPegHasArrived(0, gameBoard[pos]);
+                        gameBoard[pos] = null;
+                        break;
+                    case 'B':
+                        player.aNewPegHasArrived(1, gameBoard[pos]);
+                        gameBoard[pos] = null;
+                        break;
+                    case 'C':
+                        player.aNewPegHasArrived(2, gameBoard[pos]);
+                        gameBoard[pos] = null;
+                        break;
+                    case 'D':
+                        player.aNewPegHasArrived(3, gameBoard[pos]);
+                        gameBoard[pos] = null;
+                        break;
+                    default:
                         break;
                 }
             } else {
@@ -303,7 +368,9 @@ public class Game {
                     gameBoard[target].setPosition(-4);
                 }
                 gameBoard[target] = gameBoard[pos];
+                gameBoard[target].setPosition(target);
                 gameBoard[pos] = null;          }
+            possibleMoves = null;
             return posAndTarget[1] + "\n" + checkGameState();
         } else {
             return "Error, invalid move choice!";
@@ -311,4 +378,24 @@ public class Game {
 
     }
 
+    /**
+     * Resets the game by setting the only existing instance of it to null. Everything gets wiped.
+     */
+    static void resetGame() {
+        gameInstance = null;
+    }
+
+    /**
+     * @return how long is the path that each piece needs to go before arriving at their destination
+     */
+    static int getPathLength() {
+        return PATH_LENGTH;
+    }
+
+    /**
+     * @return true if the game is over, false if it continues
+     */
+    public boolean hasEnded() {
+        return hasEnded;
+    }
 }

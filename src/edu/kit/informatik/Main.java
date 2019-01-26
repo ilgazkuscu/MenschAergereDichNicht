@@ -65,6 +65,9 @@ public class Main {
                     if (argument == null) {
                         break;
                     }
+                case "test":
+                    Terminal.printLine(controller.startGame("SR,SR,38,AR;0,8,22,33;SG,18,23,DG;SY,28,CY,DY"));
+                    break;
                 default:
                     Terminal.printError("command not recognized!");
                     break;
