@@ -242,16 +242,14 @@ public final class Game {
         int endSpot = player.getEndIndex();
         Peg[] endArea = player.getEndArea();
 
-        if (roll == 6 && player.hasLaunchReady() != null) {
-            if (gameBoard[player.getStartIndex()] == null
-                    || gameBoard[player.getStartIndex()].getOwner() != turnCounter) {
-                moves = moves.concat("S" + playerName + "-" + player.getStartIndex() + "\n");
-                this.roll = roll;
-                possibleMoves = moves;
-                return moves.concat(PLAYER_NAMES[turnCounter]);
-            } else if (gameBoard[player.getStartIndex()].getOwner() == turnCounter) {
-                //TODO burda işte halledicez bi şekilde rekursiv mi olcak ne olcaks
-            }
+        //If the dice roll is a 6 AND the user has a launchable piece AND the start position is available, that's the
+        //only possible move
+        if (roll == 6 && player.hasLaunchReady() != null && (gameBoard[player.getStartIndex()] == null
+                || gameBoard[player.getStartIndex()].getOwner() != turnCounter)) {
+            moves = moves.concat("S" + playerName + "-" + player.getStartIndex() + "\n");
+            this.roll = roll;
+            possibleMoves = moves;
+            return moves.concat(PLAYER_NAMES[turnCounter]);
         }
 
         for (int i = 0; i < PATH_LENGTH; i++) {
@@ -304,27 +302,24 @@ public final class Game {
      * @return error message if the choice is invalid, the result of the checkGameState method otherwise
      */
     String executeTheMove(String choice) {
-        if (!choice.matches("([SABC][RGBY]|\\w{1,2})\\s([ABCD][RGBY]|\\w{1,2})")) {
+        if (!choice.matches("[SABC][RGBY]|\\w{1,2}")) {
             return "Error, invalid move choice!";
         } else if (possibleMoves == null) {
             return "Error, must roll the dice first!";
         }
-        String[] posAndTarget = choice.split("\\s", 2);
-        /*
-        only attempt to execute the move if the user has picked a valid peg to move and a valid spot to move the peg to.
-        To make sure of that, the starting position and the target position of the peg are joined together with a "-"
-        and the resulting string is compared against the list of possible moves. If it exist there, the move is executed
-         */
+
         Player player = players.get(PLAYER_NAMES[turnCounter]);
-        int order = possibleMoves.indexOf(posAndTarget[0] + "-" + posAndTarget[1]);
-        if (order != -1) {
+
+        if (possibleMoves.contains(choice + "-")) {
             // First it is checked if the user is launching a new peg
-            if (posAndTarget[0].charAt(0) == 'S') {
+            int index = possibleMoves.indexOf("-", possibleMoves.indexOf(choice)) + 1;
+            String target = possibleMoves.substring(index, possibleMoves.indexOf("\n", index + 1));
+            if (choice.charAt(0) == 'S') {
                 player.launchAPeg();
                 turnCounter = (turnCounter + 1) % PLAYER_NAMES.length;
-            } else if (posAndTarget[0].matches("[ABC]" + PLAYER_NAMES[turnCounter].toUpperCase().charAt(0))) {
+            } else if (choice.matches("[ABC]" + PLAYER_NAMES[turnCounter].toUpperCase().charAt(0))) {
                 // then it is checked if the player is moving a peg within the end area
-                switch (posAndTarget[0].charAt(0)) {
+                switch (choice.charAt(0)) {
                     case 'A':
                         player.moveInsideTheEndArea(0, roll);
                         break;
@@ -337,10 +332,9 @@ public final class Game {
                     default:
                         break;
                 }
-            } else if (posAndTarget[0].matches("\\d{1,2}")
-                    && posAndTarget[1].matches("[ABCD]" + PLAYER_NAMES[turnCounter].toUpperCase().charAt(0))) {
-                int pos = Integer.valueOf(posAndTarget[0]);
-                switch (posAndTarget[1].charAt(0)) {
+            } else if (choice.matches("\\d{1,2}") && !target.matches("\\d{1,2}")) {
+                int pos = Integer.valueOf(choice);
+                switch (target.charAt(0)) {
                     case 'A':
                         player.aNewPegHasArrived(0, gameBoard[pos]);
                         gameBoard[pos] = null;
@@ -361,17 +355,17 @@ public final class Game {
                         break;
                 }
             } else {
-                int pos = Integer.valueOf(posAndTarget[0]);
-                int target = Integer.valueOf(posAndTarget[1]);
-                if (gameBoard[target] != null) {
-                    gameBoard[target].setHome(true);
-                    gameBoard[target].setPosition(-4);
+                int pos = Integer.valueOf(choice);
+                int targetPos = Integer.valueOf(target);
+                if (gameBoard[targetPos] != null) {
+                    gameBoard[targetPos].setHome(true);
+                    gameBoard[targetPos].setPosition(-4);
                 }
-                gameBoard[target] = gameBoard[pos];
-                gameBoard[target].setPosition(target);
+                gameBoard[targetPos] = gameBoard[pos];
+                gameBoard[targetPos].setPosition(targetPos);
                 gameBoard[pos] = null;          }
             possibleMoves = null;
-            return posAndTarget[1] + "\n" + checkGameState();
+            return target + "\n" + checkGameState();
         } else {
             return "Error, invalid move choice!";
         }
@@ -395,7 +389,7 @@ public final class Game {
     /**
      * @return true if the game is over, false if it continues
      */
-    public boolean hasEnded() {
+    boolean hasEnded() {
         return hasEnded;
     }
 }

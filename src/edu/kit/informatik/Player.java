@@ -102,7 +102,7 @@ public class Player {
         pegs = new ArrayList<>();
         endArea = new Peg[NUMBER_OF_PEGS];
         for (int i = 0; i < NUMBER_OF_PEGS; i++) {
-            pegs.add(new Peg(-4, id));
+            pegs.add(new Peg(-5, id));
         }
     }
 
